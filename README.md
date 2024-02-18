@@ -59,12 +59,27 @@ git clone https://github.com/itoh28/Conduit.git
 cd Conduit
 ````
 
-**依存関係をインストールし、.env ファイルを作成**
+**PHPとComposerを含む最小のDockerコンテナを使用して、アプリケーションの依存関係をインストール**
 
 ````
-composer install
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v $(pwd):/var/www/html \
+    -w /var/www/html \
+    laravelsail/php82-composer:latest \
+    composer install --ignore-platform-reqs
+````
 
+**.env ファイルを作成**
+
+````
 cp .env.example .env
+````
+
+**.env ファイルのDB_HOSTを下記に上書き**
+
+````
+DB_HOST=mysql
 ````
 
 **コンテナ起動/キー生成**
@@ -75,21 +90,21 @@ cp .env.example .env
 ./vendor/bin/sail artisan key:generate
 ````
 
-**.env ファイルのDB部分を下記に上書きします**
+**テーブルを作成**
 
 ````
-DB_CONNECTION=mysql
-
-DB_HOST=mysql
-
-DB_PORT=3306
-
-DB_DATABASE=conduit
-
-DB_USERNAME=root
-
-DB_PASSWORD=password
+sail artisan migrate
 ````
+
+**npmコマンドでパッケージをインストールし、起動**
+
+````
+sail npm install
+
+sail npm run dev
+````
+
+****
 
 その後、http://localhost/ にアクセスしてください
 
